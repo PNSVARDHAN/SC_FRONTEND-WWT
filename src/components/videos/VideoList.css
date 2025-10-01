@@ -1,0 +1,20 @@
+/* VideoList.css */
+.carousel-container {
+  width: 600px;       /* set desired width */
+  max-width: 90%;     /* responsive on smaller screens */
+  margin: 20px auto;  /* center horizontally with some top/bottom margin */
+}
+
+.carousel-inner img {
+  height: 350px;      /* set height as you like */
+  object-fit: cover;  /* make sure image covers area without stretching */
+  border-radius : 30px;
+  padding: 20px;
+}
+
+.carousel-inner video {
+  height: 400px;       /* adjust as needed */
+  object-fit: cover;   /* fills area without stretching */
+  border-radius : 30px;
+  padding: 20px;
+}

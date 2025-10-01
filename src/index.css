@@ -1,0 +1,19 @@
+@import './styles/global.css';
+
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Import other component styles */
+@import './components/layout/Layout.css';
+@import './components/layout/Header.css';
+@import './components/layout/Footer.css';
+@import './components/devices/DeviceManager.css';
+@import './components/videos/VideoPlayer.css';
+@import './components/videos/VideoList.css';
+@import './components/videos/VideoUpload.css';
+@import './components/videos/VideoScheduler.css';
+@import './components/profile/Profile.css';
