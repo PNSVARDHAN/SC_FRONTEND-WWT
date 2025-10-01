@@ -4,13 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && node ./node_modules/vite/bin/vite.js build",
-    "lint": "eslint .",
-    "previews": "vite preview",
-    "preview": "node ./node_modules/serve/bin/serve.js -s dist -l 3000",
-    "start": "node ./node_modules/serve/bin/serve.js -s dist -l 3000"
-  },
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "start": "serve -s dist -l 3000"
+},
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
     "axios": "^1.11.0",
