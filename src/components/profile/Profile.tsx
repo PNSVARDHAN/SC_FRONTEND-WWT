@@ -3,8 +3,12 @@ import axios from "axios";
 import "./Profile.css";
 
 interface Device {
-  id: number;
-  name: string;
+  device_id: number;
+  device_code: string;
+  status: string;
+  last_seen: string | null;
+  playback_state: string;
+  current_video_id: number | null;
 }
 
 interface User {
@@ -34,33 +38,37 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
       return;
     }
 
-    const fetchProfile = async () => {
-      try { 
+    const fetchProfileAndDevices = async () => {
+      try {
+        // Fetch user profile
         const userRes = await axios.get(`${API_URL}/auth/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userRes.data);
 
-        const devicesRes = await axios.get("/api/devices/list", {
+        // Fetch devices
+        const devicesRes = await axios.get(`${API_URL}/api/devices/list`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setDevices(Array.isArray(devicesRes.data) ? devicesRes.data : []);
+        if (devicesRes.data.devices) {
+          setDevices(devicesRes.data.devices);
+        }
       } catch (err) {
-        console.error("Error fetching profile:", err);
+        console.error("Error fetching profile or devices:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, [userId, token]);
+    fetchProfileAndDevices();
+  }, [userId, token, API_URL]);
 
   if (loading) return <div>Loading profile...</div>;
   if (!user) return <div>User not found</div>;
 
   const joinedDate = new Date(user.created_at);
 
-  // ✅ Logout
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -68,29 +76,47 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     window.location.href = "/login";
   };
 
-  // ✅ Add device
+  // Add device
   const handleAddDevice = async () => {
     if (!newDevice.trim()) return;
     try {
       const res = await axios.post(
-        `${API_URL}/api/devices/add`,
+        `${API_URL}/api/devices/create`,
         { name: newDevice },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setDevices([...devices, res.data]);
+
+      // The backend returns a file blob for download. 
+      // We need to fetch the device list again to update UI
+      const devicesRes = await axios.get(`${API_URL}/api/devices/list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDevices(devicesRes.data.devices || []);
       setNewDevice("");
+
+      // Optional: automatically download the config
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `device_${newDevice}_config.json`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (err) {
       console.error("Error adding device:", err);
     }
   };
 
-  // ✅ Delete device
+  // Delete device
   const handleDeleteDevice = async (id: number) => {
     try {
       await axios.delete(`${API_URL}/api/devices/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setDevices(devices.filter((d) => d.id !== id));
+      setDevices(devices.filter((d) => d.device_id !== id));
     } catch (err) {
       console.error("Error deleting device:", err);
     }
@@ -169,23 +195,77 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
         {activeTab === "devices" && (
           <div className="devices-section">
             <h3>Devices</h3>
+
+            {/* Device List */}
             <ul className="devices-list">
               {devices.length > 0 ? (
                 devices.map((device) => (
-                  <li key={device.id} className="device-item">
-                    {device.name}
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteDevice(device.id)}
-                    >
-                      ✕
-                    </button>
+                  <li key={device.device_id} className="device-item">
+                    <div className="device-info">
+                      <span className="device-name">{device.device_code}</span>
+                      <span className="device-status">
+                        Status: {device.status || "inactive"}
+                      </span>
+                      {device.last_seen && (
+                        <span className="device-last-seen">
+                          Last seen: {new Date(device.last_seen).toLocaleString()}
+                        </span>
+                      )}
+                      <span className="device-playback">
+                        Playback: {device.playback_state || "stopped"}
+                      </span>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="device-buttons">
+                      {/* Download Config */}
+                      <button
+                        className="download-btn"
+                        onClick={async () => {
+                          try {
+                            const res = await axios.get(
+                              `${API_URL}/api/devices/${device.device_id}/download-config`,
+                              {
+                                headers: { Authorization: `Bearer ${token}` },
+                                responseType: "blob",
+                              }
+                            );
+                            const url = window.URL.createObjectURL(
+                              new Blob([res.data])
+                            );
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.setAttribute(
+                              "download",
+                              `device_${device.device_code}_config.json`
+                            );
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                          } catch (err) {
+                            console.error("Error downloading config:", err);
+                          }
+                        }}
+                      >
+                        Download Config
+                      </button>
+
+                      {/* Delete Device */}
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteDevice(device.device_id)}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </li>
                 ))
               ) : (
                 <li>No devices found</li>
               )}
             </ul>
+
+            {/* Add Device */}
             <div className="add-device">
               <input
                 type="text"

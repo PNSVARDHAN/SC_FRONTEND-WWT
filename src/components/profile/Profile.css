@@ -1,10 +1,12 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,800");
+
 /* === Layout === */
 .profile-modal {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: "Montserrat", sans-serif;
   padding: 20px;
 }
 
@@ -58,20 +60,20 @@
 }
 
 .logout-btn:hover {
-  background: #ff4b2b;
+  background: #ff416c;
 }
 
 /* === Profile Card === */
 .profile-card {
-  width: 580px;   /* fixed width */
-  height: 600px;  /* fixed height */
+  width: 580px;   
+  height: 600px;  
   background: #fff;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 30px;
   position: relative;
-  overflow-y: auto; /* scroll if content overflows */
+  overflow-y: auto; 
 }
 
 .close-btn {
@@ -86,7 +88,7 @@
 }
 
 .close-btn:hover {
-  color: #000;
+  color: #ff4b2b;
 }
 
 /* === Header === */
@@ -162,7 +164,7 @@
 }
 
 .edit-btn:hover {
-  background: #ff4b2b;
+  background: #ff416c;
 }
 
 /* === Devices === */
@@ -179,6 +181,44 @@
   border-radius: 8px;
   margin-bottom: 8px;
   align-items: center;
+}
+
+.device-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.device-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.device-status,
+.device-last-seen,
+.device-playback {
+  font-size: 12px;
+  color: #666;
+}
+
+.device-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.download-btn {
+  background: #ff4b2b;
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.download-btn:hover {
+  background: #ff416c;
 }
 
 .delete-btn {
@@ -213,7 +253,7 @@
 }
 
 .add-device button:hover {
-  background: #ff4b2b;
+  background: #ff416c;
 }
 
 /* === Password === */
@@ -236,5 +276,5 @@
 }
 
 .save-btn:hover {
-  background: #ff4b2b;
+  background: #ff416c;
 }
