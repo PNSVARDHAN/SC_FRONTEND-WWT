@@ -3,6 +3,7 @@ import axios from "../../utils/axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./VideoCardCarousel.css";
 import MultiScheduleModal from "./MultiScheduleModal";
+import arrow from "../../assets/right-arrow-next-svgrepo-com.svg"
 
 interface Video {
   videoId: number;
@@ -12,6 +13,8 @@ interface Video {
   uploadedAt: string;
   videoUrl: string;
 }
+
+const PUBLIC_BASE_URL = "https://pub-cafffcbfe1b04cb4bc378666a1eefad2.r2.dev";
 
 const VideoCardCarousel: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -47,8 +50,16 @@ const VideoCardCarousel: React.FC = () => {
       const response = await axios.get("/api/videos/my-videos", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setVideos(response.data);
-      generateThumbnails(response.data);
+
+      const updatedVideos = response.data.map((v: Video) => ({
+        ...v,
+        videoUrl: v.videoUrl.startsWith("https://")
+          ? v.videoUrl
+          : `${PUBLIC_BASE_URL}/${v.videoUrl}`,
+      }));
+
+      setVideos(updatedVideos);
+      generateThumbnails(updatedVideos);
       setError(null);
     } catch (err: any) {
       console.error("Error fetching videos:", err);
@@ -61,7 +72,7 @@ const VideoCardCarousel: React.FC = () => {
   const generateThumbnails = (videos: Video[]) => {
     videos.forEach((video) => {
       const videoEl = document.createElement("video");
-      videoEl.src = `${import.meta.env.VITE_API_URL}/api${video.videoUrl}`;
+      videoEl.src = video.videoUrl;
       videoEl.crossOrigin = "anonymous";
       videoEl.muted = true;
 
@@ -71,18 +82,27 @@ const VideoCardCarousel: React.FC = () => {
       });
 
       videoEl.addEventListener("seeked", () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = videoEl.videoWidth / 2;
-        canvas.height = videoEl.videoHeight / 2;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = videoEl.videoWidth / 2;
+          canvas.height = videoEl.videoHeight / 2;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            setThumbnails((prev) => ({
+              ...prev,
+              [video.videoId]: canvas.toDataURL("image/jpeg"),
+            }));
+          }
+        } catch (e) {
+          console.warn("CORS blocked thumbnail generation:", e);
           setThumbnails((prev) => ({
             ...prev,
-            [video.videoId]: canvas.toDataURL("image/jpeg"),
+            [video.videoId]:
+              "https://via.placeholder.com/300x150.png?text=Video+Preview",
           }));
         }
-        videoEl.remove(); // cleanup
+        videoEl.remove();
       });
     });
   };
@@ -93,13 +113,8 @@ const VideoCardCarousel: React.FC = () => {
     else setScrollAmount(600);
   };
 
-  const scrollLeft = () => {
-    carouselRef.current?.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-  };
-
-  const scrollRight = () => {
-    carouselRef.current?.scrollBy({ left: scrollAmount, behavior: "smooth" });
-  };
+  const scrollLeft = () => carouselRef.current?.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+  const scrollRight = () => carouselRef.current?.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
   const checkScroll = () => {
     const el = carouselRef.current;
@@ -120,7 +135,6 @@ const VideoCardCarousel: React.FC = () => {
 
   return (
     <div>
-      {/* Header with Schedule Button */}
       <div className="carousel-header">
         <h4>My Videos</h4>
         <button
@@ -131,13 +145,11 @@ const VideoCardCarousel: React.FC = () => {
         </button>
       </div>
 
-      {/* Carousel */}
       <div className="carousel-container">
         {showLeft && (
           <button className="scroll-btn left" onClick={scrollLeft}>
             <img
-              src="https://www.nicepng.com/png/detail/758-7586854_arrow-png-transparent-icon-right-arrow-in-circle.png"
-              alt="Left"
+              src={arrow} alt="left"
               style={{ transform: "rotate(180deg)", width: "40px" }}
             />
           </button>
@@ -155,8 +167,17 @@ const VideoCardCarousel: React.FC = () => {
               ) : (
                 <div
                   className="card-img-top"
-                  style={{ height: "150px", background: "#ccc" }}
-                />
+                  style={{
+                    height: "150px",
+                    background: "#ccc",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#555",
+                  }}
+                >
+                  Loading thumbnail...
+                </div>
               )}
               <div className="card-body">
                 <h5 className="card-title">{video.title}</h5>
@@ -172,7 +193,7 @@ const VideoCardCarousel: React.FC = () => {
         {showRight && (
           <button className="scroll-btn right" onClick={scrollRight}>
             <img
-              src="https://www.nicepng.com/png/detail/758-7586854_arrow-png-transparent-icon-right-arrow-in-circle.png"
+              src={arrow}
               alt="Right"
               style={{ width: "40px" }}
             />
@@ -180,7 +201,6 @@ const VideoCardCarousel: React.FC = () => {
         )}
       </div>
 
-      {/* Schedule Modal */}
       {showScheduleModal && (
         <div
           className="schedule-modal-backdrop"

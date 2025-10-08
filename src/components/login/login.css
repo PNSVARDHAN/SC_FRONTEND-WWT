@@ -296,3 +296,66 @@
 .login-forgot-link:hover {
   text-decoration: underline;
 }
+
+.login-error-text {
+  color: #ff4d4f;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+.login-loading-animation {
+  width: 35px;
+  height: 35px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* 🔹 Full-screen loading overlay */
+.login-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* 🔹 Center popup box */
+.login-loading-popup {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px 40px;
+  text-align: center;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 🔹 Animation inside popup */
+.login-loading-lottie {
+  width: 120px;
+  height: 120px;
+}
+
+.login-loading-text {
+  margin-top: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+

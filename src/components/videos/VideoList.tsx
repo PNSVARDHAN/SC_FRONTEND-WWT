@@ -33,6 +33,7 @@ const VideoList: React.FC = () => {
       });
 
       setVideos(response.data);
+      console.log(response)
       setError(null);
     } catch (err: any) {
       console.error("Error fetching videos:", err);
@@ -61,7 +62,7 @@ const VideoList: React.FC = () => {
               <div key={video.videoId} className={`carousel-item ${index === 0 ? "active" : ""}`}>
                 <video
                   className="d-block w-100"
-                  src={`${import.meta.env.VITE_API_URL}/api${video.videoUrl}`} 
+                  src={video.videoUrl} 
                   autoPlay
                   muted
                   loop

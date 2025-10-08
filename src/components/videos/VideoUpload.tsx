@@ -1,10 +1,13 @@
 import { useState } from "react";
 import "./VideoUpload.css";
+import Lottie from "lottie-react";
+import uploadingAnimation from "../../assets/uploading.json";
+import errorAnimation from "../../assets/error.json";
 
 interface VideoUploadProps {
   onClose?: () => void;
 }
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -13,6 +16,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
   const [isDefault, setIsDefault] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -25,51 +29,64 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
     if (!file) return alert("Please select a video");
 
     setUploading(true);
+    setError(false);
 
     try {
-      // Create a temporary video element to get duration
       const videoElement = document.createElement("video");
       videoElement.preload = "metadata";
 
       videoElement.onloadedmetadata = async () => {
-        const duration = Math.floor(videoElement.duration); // duration in seconds
+        const duration = Math.floor(videoElement.duration);
 
         const formData = new FormData();
         formData.append("file", file);
         formData.append("title", title);
         formData.append("description", description);
         formData.append("is_default", isDefault ? "true" : "false");
-        formData.append("duration", duration.toString()); // send duration
+        formData.append("duration", duration.toString());
 
-        const token = localStorage.getItem("authToken"); // JWT token
-        const response = await fetch(`${API_URL}/api/videos/upload`, {
-          method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          body: formData,
-        });
+        const token = localStorage.getItem("authToken");
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.msg || `HTTP error ${response.status}`);
-        }
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${API_URL}/api/videos/upload`);
+        if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
-        const data = await response.json();
-        alert(`Video uploaded successfully: ${data.title}`);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded * 100) / e.total);
+            setProgress(percent);
+          }
+        };
 
-        // Reset form
-        setFile(null);
-        setTitle("");
-        setDescription("");
-        setIsDefault(false);
-        setProgress(0);
-        onClose && onClose();
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const data = JSON.parse(xhr.responseText);
+            setUploading(false);
+            setProgress(100);
+            // alert(`✅ Video uploaded successfully: ${data.title}`);
+            setFile(null);
+            setTitle("");
+            setDescription("");
+            setIsDefault(false);
+            setProgress(0);
+            onClose && onClose();
+          } else {
+            setError(true);
+            setUploading(false);
+          }
+        };
+
+        xhr.onerror = () => {
+          setError(true);
+          setUploading(false);
+        };
+
+        xhr.send(formData);
       };
 
-      // Load the file URL to get metadata
       videoElement.src = URL.createObjectURL(file);
-
     } catch (err: any) {
-      alert("Upload failed: " + err.message);
+      setError(true);
       setUploading(false);
     }
   };
@@ -78,73 +95,101 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
     <div className="video-upload-modal">
       <h2>Upload Video</h2>
 
-      {/* Drag & Drop Area */}
-      <div
-        className="vu-dropzone"
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            setFile(e.dataTransfer.files[0]);
-            setTitle(e.dataTransfer.files[0].name);
-          }
-        }}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        {file ? <p>{file.name}</p> : <p>Drag & drop a video here or click to select</p>}
-        <input type="file" accept="video/*" onChange={handleFileChange} />
-      </div>
+      {!uploading && !error && (
+        <>
+          <div
+            className="vu-dropzone"
+            onDrop={(e) => {
+              e.preventDefault();
+              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                setFile(e.dataTransfer.files[0]);
+                setTitle(e.dataTransfer.files[0].name);
+              }
+            }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            {file ? (
+              <p>{file.name}</p>
+            ) : (
+              <p>Drag & drop a video here or click to select</p>
+            )}
+            <input type="file" accept="video/*" onChange={handleFileChange} />
+          </div>
 
-      {/* Title Input */}
-      <input
-        type="text"
-        className="vu-text-input"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+          <input
+            type="text"
+            className="vu-text-input"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
 
-      {/* Description Input */}
-      <textarea
-        className="vu-textarea"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+          <textarea
+            className="vu-textarea"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
 
-      {/* Default Toggle */}
-      <label className="vu-default-toggle">
-        <input
-          type="checkbox"
-          checked={isDefault}
-          onChange={(e) => setIsDefault(e.target.checked)}
-        />
-        Set as default
-      </label>
+          <label className="vu-default-toggle">
+            <input
+              type="checkbox"
+              checked={isDefault}
+              onChange={(e) => setIsDefault(e.target.checked)}
+            />
+            Set as default
+          </label>
 
-      {/* Progress Bar */}
+          <button
+            className="vu-upload-button"
+            onClick={handleUpload}
+            disabled={!file}
+          >
+            Upload
+          </button>
+
+          <button className="vu-cancel-button" onClick={onClose}>
+            Cancel
+          </button>
+        </>
+      )}
+
+      {/* Uploading Popup */}
       {uploading && (
-        <div className="vu-progress-bar">
-          <div className="vu-progress-fill" style={{ width: `${progress}%` }}></div>
+        <div className="vu-popup">
+          <div className="vu-popup-content">
+            <Lottie
+              animationData={uploadingAnimation}
+              loop
+              className="vu-popup-animation"
+            />
+            <p>Uploading... {progress}%</p>
+          </div>
         </div>
       )}
 
-      {/* Upload Button */}
-      <button
-        className="vu-upload-button"
-        onClick={handleUpload}
-        disabled={uploading || !file}
-      >
-        {uploading ? `Uploading...` : "Upload"}
-      </button>
-
-      {/* Cancel Button */}
-      <button
-        className="vu-cancel-button"
-        onClick={onClose}
-        disabled={uploading}
-      >
-        Cancel
-      </button>
+      {/* Error Popup */}
+      {error && (
+        <div className="vu-popup">
+          <div className="vu-popup-content">
+            <Lottie
+              animationData={errorAnimation}
+              loop={false}
+              className="vu-popup-animation"
+            />
+            <p>Upload failed. Please try again.</p>
+            <button
+              onClick={() => {
+                setError(false);
+                setUploading(false);
+              }}
+              className="vu-retry-button"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
