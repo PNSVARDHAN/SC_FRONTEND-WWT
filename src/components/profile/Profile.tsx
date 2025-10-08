@@ -298,7 +298,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Lottie from "lottie-react";
-import loadingAnimation from "../../assets/uploading.json"; // your Lottie animation
+import loadingAnimation from "../../assets/Loading.json"; // your Lottie animation
 import "./Profile.css";
 
 interface Device {
