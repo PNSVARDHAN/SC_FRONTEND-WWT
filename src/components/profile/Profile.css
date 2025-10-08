@@ -278,3 +278,27 @@
 .save-btn:hover {
   background: #ff416c;
 }
+
+.profile-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.profile-loading-lottie {
+  width: 150px;
+  height: 150px;
+}
+
+.profile-loading-overlay p {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-top: 12px;
+  font-weight: 500;
+}
