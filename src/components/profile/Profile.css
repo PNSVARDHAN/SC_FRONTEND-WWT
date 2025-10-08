@@ -302,3 +302,6 @@
   margin-top: 12px;
   font-weight: 500;
 }
+.animated-bg {
+  background: transparent;
+}
