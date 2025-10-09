@@ -3,7 +3,7 @@ import "./VideoUpload.css";
 import Lottie from "lottie-react";
 import uploadingAnimation from "../../assets/uploading.json";
 import errorAnimation from "../../assets/error.json";
-
+import successAnimation from "../../assets/success (1).json"
 interface VideoUploadProps {
   onClose?: () => void;
 }
@@ -17,6 +17,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -63,18 +64,18 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
             const data = JSON.parse(xhr.responseText);
             setUploading(false);
             setProgress(100);
-            // alert(`✅ Video uploaded successfully: ${data.title}`);
-            setFile(null);
-            setTitle("");
-            setDescription("");
-            setIsDefault(false);
-            setProgress(0);
-            onClose && onClose();
+            setShowSuccess(true); 
+            setTimeout(() => {
+              setShowSuccess(false); 
+              setProgress(0);
+              onClose && onClose();
+            }, 3000);
           } else {
             setError(true);
             setUploading(false);
           }
         };
+
 
         xhr.onerror = () => {
           setError(true);
@@ -95,7 +96,8 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
     <div className="video-upload-modal">
       <h2>Upload Video</h2>
 
-      {!uploading && !error && (
+      {/* ---------- Upload Form ---------- */}
+      {!uploading && !error && !showSuccess && (
         <>
           <div
             className="vu-dropzone"
@@ -154,7 +156,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
         </>
       )}
 
-      {/* Uploading Popup */}
+      {/* ---------- Uploading Popup ---------- */}
       {uploading && (
         <div className="vu-popup">
           <div className="vu-popup-content">
@@ -163,12 +165,26 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
               loop
               className="vu-popup-animation"
             />
-            <p>Uploading... {progress}%</p>
+            <p className="Successmessage">Uploading... {progress}%</p>
           </div>
         </div>
       )}
 
-      {/* Error Popup */}
+      {/* ---------- Success Popup ---------- */}
+      {showSuccess && (
+        <div className="vu-popup">
+          <div className="vu-popup-content">
+            <Lottie
+              animationData={successAnimation}
+              loop={false}
+              className="vu-popup-animation"
+            />
+            <p className="Successmessage">Video uploaded successfully!</p>
+          </div>
+        </div>
+      )}
+
+      {/* ---------- Error Popup ---------- */}
       {error && (
         <div className="vu-popup">
           <div className="vu-popup-content">
@@ -192,6 +208,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onClose }) => {
       )}
     </div>
   );
+
 };
 
 export default VideoUpload;

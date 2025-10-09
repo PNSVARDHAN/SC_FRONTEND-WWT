@@ -164,7 +164,7 @@
 }
 
 .uploading-popup {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 14px;
   padding: 25px 30px;
   width: 400px;
@@ -197,4 +197,15 @@
   background: #ff416c;
   border-radius: 4px;
   transition: width 0.2s ease;
+}
+
+.Successmessage{
+  text-align: center;
+}
+
+.vu-popup{
+  height: 50%;
+  width: 30%;
+  margin-left: 35%;
+  margin-right: 25%;
 }

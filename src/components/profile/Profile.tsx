@@ -120,7 +120,6 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     return (
       <div className="profile-loading-overlay">
         <Lottie animationData={loadingAnimation} loop={true} className="profile-loading-lottie" />
-        <p>Loading...</p>
       </div>
     );
 
