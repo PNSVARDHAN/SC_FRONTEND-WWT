@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Lottie from "lottie-react";
-import loadingAnimation from "../../assets/loading.json"; // your Lottie animation
+import loadingAnimation from "../../assets/loading.json"; 
 import "./Profile.css";
 
 interface Device {
