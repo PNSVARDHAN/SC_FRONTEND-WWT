@@ -3,7 +3,7 @@ import axios from "../../utils/axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./VideoCardCarousel.css";
 import MultiScheduleModal from "./MultiScheduleModal";
-import arrow from "../../assets/right-arrow-next-svgrepo-com.svg"
+import arrow from "../../assets/right-arrow-next-svgrepo-com.svg";
 
 interface Video {
   videoId: number;
@@ -130,6 +130,27 @@ const VideoCardCarousel: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const handleDownload = (video: Video) => {
+    const link = document.createElement("a");
+    link.href = video.videoUrl;
+    link.download = video.title;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDelete = async (videoId: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.delete(`/api/videos/${videoId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVideos(videos.filter((v) => v.videoId !== videoId));
+    } catch (err) {
+      console.error("Error deleting video:", err);
+    }
+  };
+
   if (loading) return <div className="loading">Loading videos...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -137,10 +158,7 @@ const VideoCardCarousel: React.FC = () => {
     <div>
       <div className="carousel-header">
         <h4>My Videos</h4>
-        <button
-          className="btn-schedule"
-          onClick={() => setShowScheduleModal(true)}
-        >
+        <button className="btn-schedule" onClick={() => setShowScheduleModal(true)}>
           <span className="plus-symbol">+</span> Create Playlist
         </button>
       </div>
@@ -148,64 +166,77 @@ const VideoCardCarousel: React.FC = () => {
       <div className="carousel-container">
         {showLeft && (
           <button className="scroll-btn left" onClick={scrollLeft}>
-            <img
-              src={arrow} alt="left"
-              style={{ transform: "rotate(180deg)", width: "40px" }}
-            />
+            <img src={arrow} alt="left" style={{ transform: "rotate(180deg)", width: "40px" }} />
           </button>
         )}
 
         <div className="carousel-track" ref={carouselRef}>
           {videos.map((video) => (
-            <div className="card" key={video.videoId}>
+            <div className="card position-relative" key={video.videoId}>
               {thumbnails[video.videoId] ? (
-                <img
-                  src={thumbnails[video.videoId]}
-                  className="card-img-top"
-                  alt={video.title}
-                />
+                <img className="card-img-top" src={thumbnails[video.videoId]} alt={video.title} />
               ) : (
-                <div
-                  className="card-img-top"
-                  style={{
-                    height: "150px",
-                    background: "#ccc",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#555",
-                  }}
-                >
+                <div className="card-img-top" style={{ height: "150px", background: "#ccc", display: "flex", alignItems: "center", justifyContent: "center", color: "#555" }}>
                   Loading thumbnail...
                 </div>
               )}
-              <div className="card-body">
-                <h5 className="card-title">{video.title}</h5>
+
+              <div className="card-body d-flex flex-column">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h5 className="card-title mb-0">{video.title}</h5>
+                  {/* Three dots menu beside title */}
+                  <div className="dropdown">
+                    <button
+                      className="btn btn-light btn-sm "
+                      type="button"
+                      id={`dropdown${video.videoId}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      &#8942;
+                    </button>
+                    <ul
+                      className="dropdown-menu dropdown-menu-end"
+                      aria-labelledby={`dropdown${video.videoId}`}
+                    >
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleDownload(video)}
+                        >
+                          Download
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={() => handleDelete(video.videoId)}
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
                 <p className="card-text">{video.description}</p>
                 <small className="text-muted">
                   Duration: {formatDuration(video.duration)}
                 </small>
               </div>
+
             </div>
           ))}
         </div>
 
         {showRight && (
           <button className="scroll-btn right" onClick={scrollRight}>
-            <img
-              src={arrow}
-              alt="Right"
-              style={{ width: "40px" }}
-            />
+            <img src={arrow} alt="Right" style={{ width: "40px" }} />
           </button>
         )}
       </div>
 
       {showScheduleModal && (
-        <div
-          className="schedule-modal-backdrop"
-          onClick={() => setShowScheduleModal(false)}
-        >
+        <div className="schedule-modal-backdrop" onClick={() => setShowScheduleModal(false)}>
           <div onClick={(e) => e.stopPropagation()}>
             <MultiScheduleModal onClose={() => setShowScheduleModal(false)} />
           </div>

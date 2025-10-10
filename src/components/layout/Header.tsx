@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import VideoUpload from "../videos/VideoUpload";
 import Profile from "../profile/Profile";
 import MultiScheduleModal from "../videos/MultiScheduleModal";
+import DeviceList from "../videos/DeviceList";
 import "./Header.css";
 
 const Header: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showDeviceList, setShowDeviceList] = useState(false);
 
   return (
     <>
@@ -29,14 +31,14 @@ const Header: React.FC = () => {
               Upload
             </button>
 
-            {/* Schedule Button */}
-            {/* <button
+            {/* Device Preview Button */}
+            <button
               type="button"
-              className="btn-schedule"
-              onClick={() => setShowScheduleModal(true)}
+              className="btn-upload"
+              onClick={() => setShowDeviceList(true)}
             >
-              Schedule
-            </button> */}
+              Device Preview
+            </button>
 
             {/* Profile Avatar */}
             <div className="avatar" onClick={() => setShowProfileModal(true)}>
@@ -78,6 +80,18 @@ const Header: React.FC = () => {
         >
           <div onClick={(e) => e.stopPropagation()}>
             <MultiScheduleModal onClose={() => setShowScheduleModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Device List Modal */}
+      {showDeviceList && (
+        <div
+          className="video-upload-modal-backdrop"
+          onClick={() => setShowDeviceList(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <DeviceList />
           </div>
         </div>
       )}

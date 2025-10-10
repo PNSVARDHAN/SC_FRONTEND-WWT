@@ -2,16 +2,9 @@
 import VideoList from "../videos/VideoList"; 
 import VideoCardCarousel from "../videos/VideoCardCarousel"
 import "./Home.css"
-
-// interface Video {
-//   videoId: number;
-//   title: string;
-//   description: string;
-//   videoUrl: string;
-// }
+import NextVideoCarousel from "../videos/NextVideoCarousel"
 
 const VideosPage: React.FC = () => {
-  // const [videos, setVideos] = useState<Video[]>([]);
 
 
   return (
@@ -23,6 +16,7 @@ const VideosPage: React.FC = () => {
 
       <div>
         <VideoCardCarousel/>
+        <NextVideoCarousel/>
       </div>
     </div>
   );
