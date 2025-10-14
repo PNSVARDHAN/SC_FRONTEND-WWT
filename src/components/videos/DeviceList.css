@@ -21,18 +21,19 @@
 }
 
 .device-list-add-button {
-  background-color: #7c3aed;
+  background: var(--primary-gradient);
   color: white;
   padding: 8px 16px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.3s ease;
+  transition: all var(--transition-speed) ease;
 }
 
 .device-list-add-button:hover {
-  background-color: #6b21a8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 176, 155, 0.2);
 }
 
 /* Grid */
@@ -86,11 +87,11 @@
 }
 
 .device-list-badge.active {
-  background-color: #22c55e;
+  background-color: var(--success);
 }
 
 .device-list-badge.inactive {
-  background-color: #9ca3af;
+  background-color: var(--secondary-text);
 }
 
 /* Device header */
@@ -105,8 +106,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: #ede9fe;
-  color: #7c3aed;
+  background: var(--light-bg);
+  color: var(--primary-gradient-start);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -184,4 +185,72 @@
   gap: 6px;
   margin: 8px 0;
   color: #777;
+}
+
+
+/* Modal overlay */
+.device-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal container */
+.device-modal {
+  background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  width: 350px;
+  max-width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Modal header */
+.device-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Close button */
+.device-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Input field */
+.device-modal-input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+/* Add button inside modal */
+.device-modal-add-btn {
+  padding: 10px;
+  background-color: #4f46e5; /* Indigo-600 */
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.device-modal-add-btn:hover {
+  background-color: #4338ca; /* Indigo-700 */
 }

@@ -6,15 +6,21 @@
 }
 
 .carousel-inner img {
-  height: 350px;      /* set height as you like */
-  object-fit: cover;  /* make sure image covers area without stretching */
-  border-radius : 30px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 30px;
   padding: 20px;
+  box-shadow: var(--card-shadow);
+  background: white;
+  border: 1px solid var(--border-color);
 }
 
 .carousel-inner video {
-  height: 400px;       /* adjust as needed */
-  object-fit: cover;   /* fills area without stretching */
-  border-radius : 30px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 30px;
   padding: 20px;
+  box-shadow: var(--card-shadow);
+  background: white;
+  border: 1px solid var(--border-color);
 }

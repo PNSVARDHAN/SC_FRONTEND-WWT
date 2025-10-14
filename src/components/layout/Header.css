@@ -1,8 +1,9 @@
 .header {
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  background: white;
+  border-bottom: 1px solid var(--border-color);
   padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(13, 27, 42, 0.05);
 }
 
 .header-container {
@@ -15,7 +16,11 @@
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
-  color: #000;
+  color: var(--dark-base);
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .header-right {
@@ -51,12 +56,18 @@
   display: flex;
   align-items: center;
   gap: 6px; 
-  background: #e04343; 
+  background: var(--primary-gradient);
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.btn-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 176, 155, 0.2);
 }
 
 .btn-upload img.upload-icon {

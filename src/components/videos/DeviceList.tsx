@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Loader2, Monitor, Play, Clock } from "lucide-react";
+import { Loader2, Monitor, Play, Clock, Plus, X } from "lucide-react";
 import "./DeviceList.css";
 
 interface Video {
@@ -21,23 +21,61 @@ interface Device {
 export default function DeviceList() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [newDeviceName, setNewDeviceName] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+
+  const fetchDevices = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${API_URL}/api/devices/list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDevices(res.data.devices || []);
+    } catch (err) {
+      console.error("Failed to fetch devices", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/devices/list`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setDevices(res.data.devices);
-      } catch (err) {
-        console.error("Failed to fetch devices", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDevices();
   }, []);
+
+  const handleAddDevice = async () => {
+    if (!newDeviceName.trim()) return;
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${API_URL}/api/devices/create`,
+        { name: newDeviceName },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "blob",
+        }
+      );
+
+      // Download config.json
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `config.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setNewDeviceName("");
+      setShowModal(false);
+      await fetchDevices();
+    } catch (err) {
+      console.error("Error adding device:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -51,9 +89,15 @@ export default function DeviceList() {
     <div className="device-list-container">
       <div className="device-list-header">
         <h2>Devices</h2>
-        <button className="device-list-add-button">+ Add Device</button>
+        <button
+          className="device-list-add-button"
+          onClick={() => setShowModal(true)}
+        >
+          <Plus size={18} /> Add Device
+        </button>
       </div>
 
+      {/* Device List */}
       <div className="device-list-grid">
         {devices.map((device) => (
           <div key={device.device_id} className="device-list-card">
@@ -72,7 +116,6 @@ export default function DeviceList() {
               <h3>{device.device_code}</h3>
             </div>
 
-            {/* ✅ Show video preview if available */}
             {device.current_video ? (
               <div className="device-list-video-preview">
                 <video
@@ -108,6 +151,33 @@ export default function DeviceList() {
           </div>
         ))}
       </div>
+
+      {/* Add Device Modal */}
+      {showModal && (
+        <div className="device-modal-overlay">
+          <div className="device-modal">
+            <div className="device-modal-header">
+              <h3>Add New Device</h3>
+              <button
+                className="device-modal-close"
+                onClick={() => setShowModal(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="Enter device name"
+              value={newDeviceName}
+              onChange={(e) => setNewDeviceName(e.target.value)}
+              className="device-modal-input"
+            />
+            <button className="device-modal-add-btn" onClick={handleAddDevice}>
+              Add Device
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

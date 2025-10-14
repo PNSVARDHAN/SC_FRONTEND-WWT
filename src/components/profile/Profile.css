@@ -13,8 +13,8 @@
 /* === Sidebar === */
 .profile-sidebar {
   width: 220px;
-  background: #ff4b2b;
-  color: #fff;
+  background: var(--primary-gradient);
+  color: white;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -50,27 +50,29 @@
 }
 
 .logout-btn {
-  background: #ffffff;
-  border: #0f0d0d;
-  color: #000000;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
   padding: 10px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-speed) ease;
 }
 
 .logout-btn:hover {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 /* === Profile Card === */
 .profile-card {
   width: 580px;   
   height: 600px;  
-  background: #fff;
+  background: white;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
   padding: 30px;
   position: relative;
   overflow-y: auto; 
@@ -88,7 +90,7 @@
 }
 
 .close-btn:hover {
-  color: #ff4d4f;
+  color: var(--error);
 }
 
 /* === Header === */
@@ -107,13 +109,19 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 3px solid #0f0d0d;
+  border: 3px solid var(--primary-gradient-start);
   object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(0, 176, 155, 0.2);
 }
 
 .profile-header h2 {
   margin: 8px 0 4px;
   font-size: 22px;
+  color: var(--dark-base);
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .profile-header .role {
@@ -155,16 +163,17 @@
 .edit-btn {
   margin-top: 10px;
   padding: 8px 14px;
-  background: #e03c1f;
+  background: var(--primary-gradient);
   border: none;
-  color: #fff;
+  color: white;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-speed) ease;
 }
 
 .edit-btn:hover {
-  background: #f4083f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 176, 155, 0.2);
 }
 
 /* === Devices === */
@@ -176,11 +185,18 @@
 .device-item {
   display: flex;
   justify-content: space-between;
-  background: #f9f9f9;
+  background: var(--light-bg);
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 8px;
   align-items: center;
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-speed) ease;
+}
+
+.device-item:hover {
+  box-shadow: var(--card-shadow);
+  transform: translateY(-2px);
 }
 
 .device-info {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Lottie from "lottie-react";
-import loadingAnimation from "../../assets/loading1.json"; 
+import loadingAnimation from "../../assets/loading1.json";
 import "./Profile.css";
 
 interface Device {
@@ -27,7 +27,6 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<"profile" | "devices" | "password">(
     "profile"
   );
-  const [newDevice, setNewDevice] = useState("");
 
   const API_URL = import.meta.env.VITE_API_URL;
   const userId = Number(localStorage.getItem("userId"));
@@ -42,13 +41,11 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 
     const fetchProfileAndDevices = async () => {
       try {
-        // Fetch user profile
         const userRes = await axios.get(`${API_URL}/auth/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userRes.data);
 
-        // Fetch devices
         const devicesRes = await axios.get(`${API_URL}/api/devices/list`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -70,36 +67,6 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     window.location.href = "/login";
   };
 
-  const handleAddDevice = async () => {
-    if (!newDevice.trim()) return;
-    try {
-      setLoading(true);
-      const res = await axios.post(
-        `${API_URL}/api/devices/create`,
-        { name: newDevice },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const devicesRes = await axios.get(`${API_URL}/api/devices/list`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setDevices(devicesRes.data.devices || []);
-      setNewDevice("");
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `config.json`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      console.error("Error adding device:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteDevice = async (id: number) => {
     try {
       setLoading(true);
@@ -119,7 +86,11 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   if (loading)
     return (
       <div className="profile-loading-overlay">
-        <Lottie animationData={loadingAnimation} loop={true} className="profile-loading-lottie" />
+        <Lottie
+          animationData={loadingAnimation}
+          loop={true}
+          className="profile-loading-lottie"
+        />
       </div>
     );
 
@@ -131,13 +102,22 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
       <div className="profile-sidebar">
         <h2>Welcome, {user.username}</h2>
         <ul>
-          <li className={activeTab === "profile" ? "active" : ""} onClick={() => setActiveTab("profile")}>
+          <li
+            className={activeTab === "profile" ? "active" : ""}
+            onClick={() => setActiveTab("profile")}
+          >
             Profile Info
           </li>
-          <li className={activeTab === "devices" ? "active" : ""} onClick={() => setActiveTab("devices")}>
+          <li
+            className={activeTab === "devices" ? "active" : ""}
+            onClick={() => setActiveTab("devices")}
+          >
             Devices
           </li>
-          <li className={activeTab === "password" ? "active" : ""} onClick={() => setActiveTab("password")}>
+          <li
+            className={activeTab === "password" ? "active" : ""}
+            onClick={() => setActiveTab("password")}
+          >
             Change Password
           </li>
         </ul>
@@ -190,7 +170,6 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
           <div className="devices-section">
             <h3>Devices</h3>
 
-            {/* Device List */}
             <ul className="devices-list">
               {devices.length > 0 ? (
                 devices.map((device) => (
@@ -202,7 +181,8 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                       </span>
                       {device.last_seen && (
                         <span className="device-last-seen">
-                          Last seen: {new Date(device.last_seen).toLocaleString()}
+                          Last seen:{" "}
+                          {new Date(device.last_seen).toLocaleString()}
                         </span>
                       )}
                       <span className="device-playback">
@@ -223,12 +203,14 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                                 responseType: "blob",
                               }
                             );
-                            const url = window.URL.createObjectURL(new Blob([res.data]));
+                            const url = window.URL.createObjectURL(
+                              new Blob([res.data])
+                            );
                             const link = document.createElement("a");
                             link.href = url;
                             link.setAttribute(
                               "download",
-                              `device_${device.device_code}_config.json`
+                              `${device.device_code}.zip`
                             );
                             document.body.appendChild(link);
                             link.click();
@@ -256,17 +238,6 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 <li>No devices found</li>
               )}
             </ul>
-
-            {/* Add Device */}
-            <div className="add-device">
-              <input
-                type="text"
-                value={newDevice}
-                placeholder="Enter device name"
-                onChange={(e) => setNewDevice(e.target.value)}
-              />
-              <button onClick={handleAddDevice}>Add Device</button>
-            </div>
           </div>
         )}
 

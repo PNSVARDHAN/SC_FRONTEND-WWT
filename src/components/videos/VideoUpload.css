@@ -15,36 +15,42 @@
 
 /* Modal Container */
 .video-upload-modal {
-  background: #fff;
+  background: white;
   padding: 25px 20px;
   border-radius: 14px;
   width: 500px;        /* fixed width */
-  max-width: 500px;    /* optional, ensures it won’t expand */
-  min-width: 500px;    /* optional, ensures it won’t shrink */
+  max-width: 500px;    /* optional, ensures it won't expand */
+  min-width: 500px;    /* optional, ensures it won't shrink */
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
   animation: vu-slideUp 0.3s;
-  box-sizing: border-box; /* ensures padding doesn’t increase total width */
+  box-sizing: border-box; /* ensures padding doesn't increase total width */
 }
 /* Header */
 .video-upload-modal h2 {
   margin: 0;
   text-align: center;
   font-size: 22px;
-  color: #222;
+  color: var(--dark-base);
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Drag & Drop Area */
 .vu-dropzone {
   position: relative;
-  border: 2px dashed #e04343;
+  border: 2px dashed var(--primary-gradient-start);
   border-radius: 10px;
   padding: 30px;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-speed);
+  background: var(--light-bg);
 }
 
 .vu-dropzone:hover {
@@ -74,7 +80,8 @@
 
 .vu-text-input:focus,
 .vu-textarea:focus {
-  border-color: #ff416c;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.2);
 }
 
 /* Toggle */
@@ -104,7 +111,7 @@
 
 .vu-progress-fill {
   height: 100%;
-  background: #ff416c;
+  background: var(--primary-gradient);
   border-radius: 3px;
   transition: width 0.2s;
 }
@@ -123,16 +130,18 @@
 }
 
 .vu-upload-button {
-  background-color: #ff416c;
-  color: #fff;
+  background: var(--primary-gradient);
+  color: white;
 }
 
 .vu-upload-button:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 176, 155, 0.2);
 }
 
 .vu-cancel-button {
-  background-color: #ff416c;
+  background: var(--primary-gradient);
+  color: white;
 }
 
 .vu-cancel-button:hover {

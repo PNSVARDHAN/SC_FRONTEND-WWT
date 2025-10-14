@@ -5,6 +5,7 @@ import Profile from "../profile/Profile";
 import MultiScheduleModal from "../videos/MultiScheduleModal";
 import DeviceList from "../videos/DeviceList";
 import "./Header.css";
+import logo from "../../assets/logo.png"
 
 const Header: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -17,7 +18,9 @@ const Header: React.FC = () => {
       <header className="header">
         <div className="header-container">
           <div className="logo">
-            <Link to="/">Logo</Link>
+            <Link to="/">
+              <img src={logo} alt="Logo" style={{ width: "60px", height: "auto" }} />
+            </Link>
           </div>
 
           <div className="header-right">

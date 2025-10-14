@@ -16,7 +16,7 @@
 }
 
 .login-wrapper {
-  background: #f6f5f7;
+  background: var(--light-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,15 +55,16 @@
 
 .login-button {
   border-radius: 20px;
-  border: 1px solid #ff4b2b;
-  background-color: #ff4b2b;
+  border: none;
+  background: var(--primary-gradient);
   color: #ffffff;
   font-size: 12px;
   font-weight: bold;
   padding: 12px 45px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  transition: transform 80ms ease-in;
+  transition: all var(--transition-speed) ease-in;
+  cursor: pointer;
 }
 
 .login-button:active {
@@ -91,11 +92,20 @@
 }
 
 .login-input {
-  background-color: #eee;
-  border: none;
+  background-color: var(--border-color);
+  border: 1px solid transparent;
   padding: 12px 15px;
   margin: 8px 0;
   width: 100%;
+  border-radius: 8px;
+  transition: all var(--transition-speed);
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.2);
 }
 
 .login-password-field {
