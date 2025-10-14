@@ -114,12 +114,12 @@ const Profile: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
           >
             Devices
           </li>
-          <li
+          {/* <li
             className={activeTab === "password" ? "active" : ""}
             onClick={() => setActiveTab("password")}
           >
             Change Password
-          </li>
+          </li> */}
         </ul>
         <button className="logout-btn" onClick={handleLogout}>
           Log Out

@@ -135,12 +135,12 @@
 }
 
 .login-password-toggle:hover {
-  color: #ff4b2b;
+  color: #3498db;
 }
 
 .login-password-toggle:focus {
   outline: none;
-  color: #ff4b2b;
+  color: #3498db;
 }
 
 .login-main-container {
@@ -212,7 +212,7 @@
 }
 
 .login-overlay {
-  background: linear-gradient(to right, #ff4b2b, #ff416c);
+  background: linear-gradient(to right, #a0d0f0, #a0d0f0);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 0 0;

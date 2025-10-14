@@ -223,7 +223,7 @@
 }
 
 .download-btn {
-  background: #ff4b2b;
+  background: #3498db;
   border: none;
   color: #fff;
   padding: 6px 10px;
@@ -234,7 +234,7 @@
 }
 
 .download-btn:hover {
-  background: #ff416c;
+  background: #4f9dd2;
 }
 
 .delete-btn {
@@ -258,16 +258,6 @@
   border-radius: 8px;
 }
 
-.add-device button {
-  padding: 8px 14px;
-  border: none;
-  background: #ff4b2b;
-  color: #fff;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
 .add-device button:hover {
   background: #ff416c;
 }
@@ -282,7 +272,7 @@
 }
 
 .save-btn {
-  background: #ff4b2b;
+  background: #60afe4;
   border: none;
   color: #fff;
   padding: 10px 16px;
