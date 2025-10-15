@@ -4,6 +4,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./VideoCardCarousel.css";
 import MultiScheduleModal from "./MultiScheduleModal";
 import arrow from "../../assets/right-arrow-next-svgrepo-com.svg";
+import Lottie from "lottie-react";
+
+// ✅ Animation JSON imports
+import deleteLoading from "../../assets/delete_loading.json";
+import deleteError from "../../assets/error.json";
+import deleteSuccess from "../../assets/success (1).json";
 
 interface Video {
   videoId: number;
@@ -26,6 +32,11 @@ const VideoCardCarousel: React.FC = () => {
   const [showRight, setShowRight] = useState(true);
   const [scrollAmount, setScrollAmount] = useState(300);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  // ✅ Delete animation states
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   useEffect(() => {
     fetchVideos();
@@ -139,17 +150,62 @@ const VideoCardCarousel: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  // ✅ Full delete (Cloudflare + DB)
   const handleDelete = async (videoId: number) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this video?");
+    if (!confirmDelete) return;
+
+    setDeleting(true);
+    setDeleteError(false);
+    setDeleteSuccess(false);
+
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`/api/videos/${videoId}`, {
+      if (!token) throw new Error("No auth token found");
+
+      await axios.delete(`/api/videos/delete/${videoId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setVideos(videos.filter((v) => v.videoId !== videoId));
+
+      setVideos((prev) => prev.filter((v) => v.videoId !== videoId));
+      setDeleteSuccess(true);
+      setTimeout(() => setDeleteSuccess(false), 2000);
     } catch (err) {
       console.error("Error deleting video:", err);
+      setDeleteError(true);
+      setTimeout(() => setDeleteError(false), 2000);
+    } finally {
+      setDeleting(false);
     }
   };
+
+  // ✅ Animation overlays
+  if (deleting) {
+    return (
+      <div className="animation-overlay">
+        <Lottie animationData={deleteLoading} loop />
+        <p style={{ color: "#ccc", marginTop: "10px" }}>Deleting video...</p>
+      </div>
+    );
+  }
+
+  if (deleteError) {
+    return (
+      <div className="animation-overlay">
+        <Lottie animationData={deleteError} loop={false} />
+        <p style={{ color: "red", marginTop: "10px" }}>Failed to delete video.</p>
+      </div>
+    );
+  }
+
+  if (deleteSuccess) {
+    return (
+      <div className="animation-overlay">
+        <Lottie animationData={deleteSuccess} loop={false} />
+        <p style={{ color: "green", marginTop: "10px" }}>Video deleted successfully!</p>
+      </div>
+    );
+  }
 
   if (loading) return <div className="loading">Loading videos...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -176,7 +232,17 @@ const VideoCardCarousel: React.FC = () => {
               {thumbnails[video.videoId] ? (
                 <img className="card-img-top" src={thumbnails[video.videoId]} alt={video.title} />
               ) : (
-                <div className="card-img-top" style={{ height: "150px", background: "#ccc", display: "flex", alignItems: "center", justifyContent: "center", color: "#555" }}>
+                <div
+                  className="card-img-top"
+                  style={{
+                    height: "150px",
+                    background: "#ccc",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#555",
+                  }}
+                >
                   Loading thumbnail...
                 </div>
               )}
@@ -184,10 +250,11 @@ const VideoCardCarousel: React.FC = () => {
               <div className="card-body d-flex flex-column">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h5 className="card-title mb-0">{video.title}</h5>
-                  {/* Three dots menu beside title */}
+
+                  {/* 3-dot menu */}
                   <div className="dropdown">
                     <button
-                      className="btn btn-light btn-sm "
+                      className="btn btn-light btn-sm"
                       type="button"
                       id={`dropdown${video.videoId}`}
                       data-bs-toggle="dropdown"
@@ -200,10 +267,7 @@ const VideoCardCarousel: React.FC = () => {
                       aria-labelledby={`dropdown${video.videoId}`}
                     >
                       <li>
-                        <button
-                          className="dropdown-item"
-                          onClick={() => handleDownload(video)}
-                        >
+                        <button className="dropdown-item" onClick={() => handleDownload(video)}>
                           Download
                         </button>
                       </li>
@@ -223,7 +287,6 @@ const VideoCardCarousel: React.FC = () => {
                   Duration: {formatDuration(video.duration)}
                 </small>
               </div>
-
             </div>
           ))}
         </div>
