@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Loader2, Monitor, Play, Clock, Plus, X } from "lucide-react";
+import { Monitor, Play, Clock, Plus, X } from "lucide-react";
+import Lottie from "lottie-react";
+import loadingAnimation from "../../assets/loading1.json"
 import "./DeviceList.css";
 
 interface Video {
@@ -58,7 +60,6 @@ export default function DeviceList() {
         }
       );
 
-      // Download config.json
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -77,10 +78,15 @@ export default function DeviceList() {
     }
   };
 
+  // ✅ Updated loader using Lottie animation
   if (loading) {
     return (
       <div className="device-list-loader-container">
-        <Loader2 className="device-list-loader" />
+        <Lottie
+          animationData={loadingAnimation}
+          loop={true}
+          style={{ width: 200, height: 200 }}
+        />
       </div>
     );
   }
@@ -172,7 +178,10 @@ export default function DeviceList() {
               onChange={(e) => setNewDeviceName(e.target.value)}
               className="device-modal-input"
             />
-            <button className="device-modal-add-btn" onClick={handleAddDevice}>
+            <button
+              className="device-modal-add-btn"
+              onClick={handleAddDevice}
+            >
               Add Device
             </button>
           </div>
