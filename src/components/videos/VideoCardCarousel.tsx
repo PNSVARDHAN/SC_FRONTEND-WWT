@@ -8,8 +8,8 @@ import Lottie from "lottie-react";
 
 // ✅ Animation JSON imports
 import deleteLoading from "../../assets/delete_loading.json";
-import deleteError from "../../assets/error.json";
-import deleteSuccess from "../../assets/success (1).json";
+import deleteErrorAnim from "../../assets/error.json";
+import deleteSuccessAnim from "../../assets/success (1).json";
 
 interface Video {
   videoId: number;
@@ -37,6 +37,9 @@ const VideoCardCarousel: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  // ✅ Dropdown state
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -150,7 +153,6 @@ const VideoCardCarousel: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // ✅ Full delete (Cloudflare + DB)
   const handleDelete = async (videoId: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this video?");
     if (!confirmDelete) return;
@@ -192,7 +194,7 @@ const VideoCardCarousel: React.FC = () => {
   if (deleteError) {
     return (
       <div className="animation-overlay">
-        <Lottie animationData={deleteError} loop={false} />
+        <Lottie animationData={deleteErrorAnim} loop={false} />
         <p style={{ color: "red", marginTop: "10px" }}>Failed to delete video.</p>
       </div>
     );
@@ -201,7 +203,7 @@ const VideoCardCarousel: React.FC = () => {
   if (deleteSuccess) {
     return (
       <div className="animation-overlay">
-        <Lottie animationData={deleteSuccess} loop={false} />
+        <Lottie animationData={deleteSuccessAnim} loop={false} />
         <p style={{ color: "green", marginTop: "10px" }}>Video deleted successfully!</p>
       </div>
     );
@@ -251,35 +253,31 @@ const VideoCardCarousel: React.FC = () => {
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h5 className="card-title mb-0">{video.title}</h5>
 
-                  {/* 3-dot menu */}
+                  {/* 🔹 React-only dropdown */}
                   <div className="dropdown">
                     <button
                       className="btn btn-light btn-sm"
-                      type="button"
-                      id={`dropdown${video.videoId}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
+                      onClick={() => setOpenMenuId(openMenuId === video.videoId ? null : video.videoId)}
                     >
                       &#8942;
                     </button>
-                    <ul
-                      className="dropdown-menu dropdown-menu-end"
-                      aria-labelledby={`dropdown${video.videoId}`}
-                    >
-                      <li>
-                        <button className="dropdown-item" onClick={() => handleDownload(video)}>
-                          Download
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item text-danger"
-                          onClick={() => handleDelete(video.videoId)}
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    </ul>
+                    {openMenuId === video.videoId && (
+                      <ul className="dropdown-menu dropdown-menu-end show">
+                        <li>
+                          <button className="dropdown-item" onClick={() => handleDownload(video)}>
+                            Download
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item text-danger"
+                            onClick={() => handleDelete(video.videoId)}
+                          >
+                            Delete
+                          </button>
+                        </li>
+                      </ul>
+                    )}
                   </div>
                 </div>
                 <p className="card-text">{video.description}</p>
