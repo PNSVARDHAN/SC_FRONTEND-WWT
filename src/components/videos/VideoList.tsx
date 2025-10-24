@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "../../utils/axios";
 import "./VideoList.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -28,6 +28,8 @@ const VideoList: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const carouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetchScheduledVideos();
@@ -79,7 +81,7 @@ const VideoList: React.FC = () => {
       </div>
 
       {videos.length > 0 ? (
-        <div id="carouselExampleAutoplaying" className="carousel slide main" data-bs-ride="carousel">
+        <div id="carouselExampleAutoplaying" className="carousel slide main carousel-wrapper" data-bs-ride="carousel" ref={carouselRef}>
           <div className="carousel-inner">
             {videos.map((video, index) => (
               <div key={video.videoId} className={`carousel-item ${index === 0 ? "active" : ""}`}>
@@ -101,25 +103,48 @@ const VideoList: React.FC = () => {
             ))}
           </div>
 
-          <button
-            className="carousel-control-prev"
-            type="button"
-            data-bs-target="#carouselExampleAutoplaying"
-            data-bs-slide="prev"
-          >
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Previous</span>
-          </button>
+          {/* Removed centered overlay controls per user request */}
 
-          <button
-            className="carousel-control-next"
-            type="button"
-            data-bs-target="#carouselExampleAutoplaying"
-            data-bs-slide="next"
-          >
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Next</span>
-          </button>
+          {/* Corner buttons (small) - appear in the left & right corners of the carousel */}
+          <div className="carousel-corner-controls" aria-hidden>
+            <div
+              className="corner-btn corner-left"
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (!target.closest || !target.closest('.corner-icon')) return;
+                const bs = (window as any).bootstrap;
+                const el = carouselRef.current;
+                if (!el) return;
+                try {
+                  const inst = bs?.Carousel?.getInstance(el) ?? new bs.Carousel(el);
+                  inst.prev();
+                } catch (err) {
+                  el.querySelector('.carousel-control-prev-icon')?.dispatchEvent(new MouseEvent('click'));
+                }
+              }}
+            >
+              <span className="corner-icon carousel-control-prev-icon" aria-hidden="true"></span>
+            </div>
+
+            <div
+              className="corner-btn corner-right"
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (!target.closest || !target.closest('.corner-icon')) return;
+                const bs = (window as any).bootstrap;
+                const el = carouselRef.current;
+                if (!el) return;
+                try {
+                  const inst = bs?.Carousel?.getInstance(el) ?? new bs.Carousel(el);
+                  inst.next();
+                } catch (err) {
+                  el.querySelector('.carousel-control-next-icon')?.dispatchEvent(new MouseEvent('click'));
+                }
+              }}
+            >
+              <span className="corner-icon carousel-control-next-icon" aria-hidden="true"></span>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="no-videos">

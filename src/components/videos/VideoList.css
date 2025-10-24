@@ -77,3 +77,19 @@
   background: white;
   border: 1px solid var(--border-color);
 }
+
+/* Carousel wrapper */
+.carousel-wrapper { position: relative; }
+
+/* Corner buttons */
+.carousel-corner-controls { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+.corner-btn { pointer-events: auto; position: absolute; width: 56px; height: 56px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); color: white; box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+.corner-left { left: 12px; top: 50%; transform: translateY(-50%); }
+.corner-right { right: 12px; top: 50%; transform: translateY(-50%); }
+.corner-icon { width: 22px; height: 22px; display: inline-block; }
+
+@media (max-width: 640px) {
+  .corner-btn { width: 40px; height: 40px; left: 8px; right: 8px; }
+  .corner-left { left: 8px; top: 8px; }
+  .corner-right { right: 8px; top: 8px; }
+}
