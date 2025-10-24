@@ -20,7 +20,7 @@ interface Video {
   videoUrl: string;
 }
 
-const PUBLIC_BASE_URL = "https://pub-cafffcbfe1b04cb4bc378666a1eefad2.r2.dev";
+// const PUBLIC_BASE_URL = "https://pub-cafffcbfe1b04cb4bc378666a1eefad2.r2.dev";
 
 const VideoCardCarousel: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -69,7 +69,7 @@ const VideoCardCarousel: React.FC = () => {
         ...v,
         videoUrl: v.videoUrl.startsWith("https://")
           ? v.videoUrl
-          : `${PUBLIC_BASE_URL}/${v.videoUrl}`,
+          : v.videoUrl,
       }));
 
       setVideos(updatedVideos);
@@ -215,7 +215,8 @@ const VideoCardCarousel: React.FC = () => {
   return (
     <div>
       <div className="carousel-header">
-        <h4>My Videos</h4>
+        <h4>Playlist</h4>
+
         <button className="btn-schedule" onClick={() => setShowScheduleModal(true)}>
           <span className="plus-symbol">+</span> Create Playlist
         </button>

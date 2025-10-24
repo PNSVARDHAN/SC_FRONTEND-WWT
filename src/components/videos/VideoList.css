@@ -18,6 +18,18 @@
   text-align: center;
 }
 
+/* Video wrapper and centered custom controls */
+.video-wrapper { position: relative; display: block; }
+.video-controls { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; gap: 12px; align-items: center; justify-content: center; pointer-events: none; }
+.vc-btn { pointer-events: auto; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 999px; background: rgba(0,0,0,0.55); color: white; border: none; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,0.35); }
+.vc-btn svg { display: block; }
+.vc-play { width: 64px; height: 64px; }
+.vc-mute, .vc-full { width: 44px; height: 44px; }
+
+/* make controls less obstructive on hover */
+.video-wrapper:hover .vc-btn { background: rgba(0,0,0,0.65); }
+
+
 .loader-text {
   margin-top: 12px;
   color: var(--text-color, #e6e6e6);

@@ -8,13 +8,14 @@ const VideosPage: React.FC = () => {
 
   return (
     <div className="videos-page">
-      <div>
+      <div className="VideoList">
         <VideoList/>
       </div>
 
       <div>
         <VideoCardCarousel/>
       </div>
+
     </div>
   );
 };

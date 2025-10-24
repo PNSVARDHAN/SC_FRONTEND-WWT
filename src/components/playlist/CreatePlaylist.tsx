@@ -25,7 +25,7 @@ const CreatePlaylist = () => {
         <div className="playlist-modal" onClick={e => e.stopPropagation()}>
           <button className="close-modal" onClick={closeModal}>&times;</button>
           {/* Add your playlist creation form here */}
-          <h2>Create New Playlist</h2>
+          <h2>Create New Playlis</h2>
           {/* Add more content as needed */}
         </div>
       </div>
