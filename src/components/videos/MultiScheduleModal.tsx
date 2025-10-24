@@ -3,11 +3,18 @@ import axios from "../../utils/axios";
 import "./MultiScheduleModal.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
+import Lottie from 'lottie-react';
+import loadingAnim from '../../assets/loading1.json';
+import successAnim from '../../assets/success (1).json';
+import errorAnim from '../../assets/error.json';
+import uploadingAnim from '../../assets/uploading.json';
 
-interface Device {
+interface Device {  
   device_id: number;
   device_code: string;
   status: string;
+  last_fetch_time?: string;
+  next_fetch_time?: string;
 }
 
 interface Video {
@@ -24,34 +31,60 @@ const MultiScheduleModal = ({ onClose }: { onClose: () => void }) => {
   const [endTime, setEndTime] = useState("");
   const [repeat, setRepeat] = useState(false);
   const [playMode, setPlayMode] = useState("loop");
+  const [mounted, setMounted] = useState(false);
+  const [uiState, setUiState] = useState<
+    | { status: 'idle' }
+    | { status: 'loading'; label?: string }
+    | { status: 'success'; label?: string }
+    | { status: 'error'; label?: string }
+  >({ status: 'idle' });
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    axios
+    // show loading animation while fetching
+    setUiState({ status: 'loading', label: 'Loading data...' });
+
+    // Fetch devices
+    const devicesReq = axios
       .get("/api/devices/list", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setDevices(res.data.devices || []);
-      })
+      .then((res) => setDevices(res.data.devices || []))
       .catch((err) => console.error("Failed to load devices", err));
 
-    axios
+    // Fetch videos
+    const videosReq = axios
       .get("/api/videos/my-videos", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        setVideos(res.data || []);
-      })
+      .then((res) => setVideos(res.data || []))
       .catch((err) => console.error("Failed to load videos", err));
+
+    // When both finished, hide loading
+    Promise.all([devicesReq, videosReq]).finally(() => {
+      setTimeout(() => setUiState({ status: 'idle' }), 300);
+    });
+  }, []);
+
+  // add mounted class to trigger fade-in animation
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 10);
+    return () => clearTimeout(t);
   }, []);
 
   const handleSchedule = async () => {
     if (!selectedDevices.length || !selectedVideos.length || !startTime) {
-      return alert("Please select at least one device, one video, and start time.");
+      setUiState({ status: 'error', label: 'Please select at least one device, one video, and a start time.' });
+      setTimeout(() => setUiState({ status: 'idle' }), 2500);
+      return;
     }
 
     const token = localStorage.getItem("authToken");
-    if (!token) return alert("Unauthorized");
+    if (!token) {
+      setUiState({ status: 'error', label: 'Unauthorized' });
+      setTimeout(() => setUiState({ status: 'idle' }), 2000);
+      return;
+    }
 
     try {
+      setUiState({ status: 'loading', label: 'Creating schedules...' });
       const res = await axios.post(
         "/api/schedules/create-multiple",
         {
@@ -66,14 +99,16 @@ const MultiScheduleModal = ({ onClose }: { onClose: () => void }) => {
       );
 
       const data = res.data;
-      alert(
-        `Schedules created successfully!\nGroup ID: ${data.schedule_group_id}\nSchedules: ${data.schedule_ids.join(", ")}`
-      );
-
-      onClose();
+      setUiState({ status: 'success', label: `Group ${data.schedule_group_id}` });
+      // keep success animation for a short while then close
+      setTimeout(() => {
+        setUiState({ status: 'idle' });
+        onClose();
+      }, 1600);
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.msg || "Failed to create schedules");
+      setUiState({ status: 'error', label: err.response?.data?.msg || 'Failed to create schedules' });
+      setTimeout(() => setUiState({ status: 'idle' }), 2500);
     }
   };
 
@@ -89,79 +124,173 @@ const MultiScheduleModal = ({ onClose }: { onClose: () => void }) => {
     );
   };
 
+  const nowISO = new Date().toISOString().slice(0,16);
+
   return (
-    <div className="multi-schedule-modal">
-      <div className="modal-header">
-        <h2>Create Multi Video Schedule</h2>
-        <button onClick={onClose} className="close-btn">
-          ✖
-        </button>
-      </div>
+    // Overlay backdrop
+    <div className={`msm-overlay ${mounted ? "open" : ""}`} role="dialog" aria-modal="true">
+      <div className="msm-modal" aria-labelledby="msm-title">
+        <header className="msm-header">
+          <h2 id="msm-title">Create Multi Video Schedule</h2>
+          <button aria-label="Close" className="msm-close" onClick={onClose}>✖</button>
+        </header>
 
-      <div className="modal-body">
-        <h4>Select Devices:</h4>
-        {devices.map((d) => (
-          <label key={`device-${d.device_id}`} style={{ display: "block", marginBottom: "5px" }}>
-            <input
-              type="checkbox"
-              checked={selectedDevices.includes(d.device_id)}
-              onChange={() => toggleDeviceSelection(d.device_id)}
-            />
-            {d.device_code} ({d.status})
-          </label>
-        ))}
+        <div className="msm-divider" />
 
-        <h4>Select Videos:</h4>
-        {videos.map((v) => (
-          <label key={`video-${v.videoId}`} style={{ display: "block", marginBottom: "5px" }}>
-            <input
-              type="checkbox"
-              checked={selectedVideos.includes(v.videoId)}
-              onChange={() => toggleVideoSelection(v.videoId)}
-            />
-            {v.title}
-          </label>
-        ))}
+        {uiState.status !== 'idle' && (
+          <div className="msm-lottie-overlay" role="status" aria-live="polite">
+            <div className="msm-lottie-box">
+              <Lottie
+                animationData={
+                  uiState.status === 'loading'
+                    ? (uiState.label?.toLowerCase().includes('create') ? uploadingAnim : loadingAnim)
+                    : uiState.status === 'success'
+                    ? successAnim
+                    : errorAnim
+                }
+                loop={uiState.status === 'loading'}
+                style={{ width: 140, height: 140 }}
+              />
+              {uiState.label && <div className="msm-lottie-label">{uiState.label}</div>}
+            </div>
+          </div>
+        )}
 
-        <label>Start Time:</label>
-        <input
-          type="datetime-local"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-        />
+        <div className="msm-body">
+          <section className="msm-lists">
+            <div className="msm-column devices">
+              <h4 className="msm-subtitle">Devices</h4>
+              <div className="msm-scroll list-devices">
+                {devices.map((d) => {
+                  const selected = selectedDevices.includes(d.device_id);
+                  return (
+                    <div
+                      key={`device-${d.device_id}`}
+                      className={`device-card ${selected ? "selected" : ""}`}
+                      onClick={() => toggleDeviceSelection(d.device_id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleDeviceSelection(d.device_id); }}
+                    >
+                      <div className="device-main">
+                        <span className="device-icon" aria-hidden>
+                          {/* small monitor icon */}
+                          <svg width="18" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="3" width="20" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                            <path d="M8 20h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                            <path d="M12 16v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                        <div className="device-name">
+                          <div className="device-title">
+                            <span className={`status-dot ${d.status?.toLowerCase() === 'active' ? 'online' : d.status?.toLowerCase() === 'inactive' ? 'offline' : 'unknown'}`} aria-hidden></span>
+                            {d.device_code} <span className="device-status">({d.status})</span>
+                          </div>
+                          <div className="device-times">
+                            <div><strong>Last Fetch:</strong> {d.last_fetch_time ? new Date(d.last_fetch_time).toLocaleString() : '—'}</div>
+                            <div><strong>Next Fetch:</strong> {d.next_fetch_time ? new Date(d.next_fetch_time).toLocaleString() : '—'}</div>
+                          </div>
+                        </div>
+                        <input type="checkbox" className="hidden-checkbox" readOnly checked={selected} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-        <label>End Time:</label>
-        <input
-          type="datetime-local"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-        />
+            <div className="msm-column videos">
+              <h4 className="msm-subtitle">Videos</h4>
+              <div className="msm-scroll list-videos">
+                {videos.map((v) => {
+                  const selected = selectedVideos.includes(v.videoId);
+                  return (
+                    <label key={`video-${v.videoId}`} className={`video-item ${selected ? 'selected' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleVideoSelection(v.videoId)}
+                      />
+                      <span className="video-icon" aria-hidden>
+                        <svg width="18" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 7v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M17 10l4-2v8l-4-2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      <span className="video-title">{v.title}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={repeat}
-            onChange={(e) => setRepeat(e.target.checked)}
-          />
-          Repeat
-        </label>
+          <section className="msm-times">
+            <div className="time-input">
+              <label className="time-label">Start Time</label>
+              <div className="input-wrap">
+                <input
+                  type="datetime-local"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  min={nowISO}
+                />
+                <span className="input-icon" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11v6h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M17 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.2" />
+                  </svg>
+                </span>
+              </div>
+            </div>
 
-        <label>Play Mode:</label>
-        <select value={playMode} onChange={(e) => setPlayMode(e.target.value)}>
-          <option value="loop">Loop</option>
-          <option value="once">Play Once</option>
-        </select>
-      </div>
+            <div className="time-input">
+              <label className="time-label">End Time</label>
+              <div className="input-wrap">
+                <input
+                  type="datetime-local"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  min={nowISO}
+                />
+                <span className="input-icon" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11v6h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M17 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.2" />
+                  </svg>
+                </span>
+              </div>
+            </div>
 
-      <div className="modal-footer">
-        <div style={{ marginLeft: "auto", display: "flex", gap: "12px" }}>
-          <button onClick={handleSchedule} className="btn-primary">
-            Create Schedule
-          </button>
-          <button onClick={onClose} className="btn-secondary">
-            Cancel
-          </button>
+            <div className="options-row">
+              <label className="option-inline">
+                <input
+                  type="checkbox"
+                  checked={repeat}
+                  onChange={(e) => setRepeat(e.target.checked)}
+                />
+                Repeat
+              </label>
+
+              <label className="option-inline">
+                Play Mode
+                <select value={playMode} onChange={(e) => setPlayMode(e.target.value)}>
+                  <option value="loop">Loop</option>
+                  <option value="once">Play Once</option>
+                </select>
+              </label>
+            </div>
+          </section>
         </div>
+
+        <footer className="msm-footer">
+          <div className="footer-actions">
+            <button onClick={handleSchedule} className="btn btn-primary">Create Schedule</button>
+            <button onClick={onClose} className="btn btn-secondary">Cancel</button>
+          </div>
+        </footer>
       </div>
     </div>
   );

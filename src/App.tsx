@@ -45,6 +45,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
 import Layout from "./components/layout/Layout";
 import SynetraLanding from "./SynetraLanding/SynetraLanding"; // <-- import landing page
+import Designers from "./components/designers/Designers";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
           }
         >
           <Route path="/home" element={<Home />} />
+          <Route path="/designers" element={<Designers />} />
         </Route>
       </Routes>
     </BrowserRouter>

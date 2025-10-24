@@ -1,3 +1,56 @@
+/* Centered loader and empty-state styles for VideoList */
+.video-list-loader,
+.no-videos {
+  width: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.animation-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.loader-text {
+  margin-top: 12px;
+  color: var(--text-color, #e6e6e6);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.no-videos-text {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--muted, #333);
+}
+
+.no-videos-sub {
+  margin-top: 6px;
+  color: var(--muted-2, #666);
+  font-size: 0.95rem;
+}
+
+/* Make sure carousel still looks okay on small screens */
+@media (max-width: 640px) {
+  .animation-center Lottie,
+  .animation-center > div {
+    width: 260px !important;
+    height: 260px !important;
+  }
+}
+
+/* small visual touch for carousel when present */
+.carousel-header h4 {
+  margin: 0 0 12px 0;
+}
 /* VideoList.css */
 .carousel-container {
   width: 600px;       /* set desired width */

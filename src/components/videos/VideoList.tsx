@@ -4,6 +4,10 @@ import "./VideoList.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import Lottie from "lottie-react";
+// Animations
+import loadingAnim from "../../assets/loading1.json";
+import animatedDashboard from "../../assets/Animated Dashboards.json";
 
 interface Video {
   videoId: number;
@@ -56,7 +60,16 @@ const VideoList: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading videos...</div>;
+  if (loading)
+    return (
+      <div className="video-list-loader">
+        <div className="animation-center">
+          <Lottie animationData={loadingAnim} loop style={{ width: 220, height: 220 }} />
+          <div className="loader-text">Loading videos...</div>
+        </div>
+      </div>
+    );
+
   if (error) return <div className="error">{error}</div>;
 
   return (
@@ -65,14 +78,11 @@ const VideoList: React.FC = () => {
         <h4>Upcoming Videos</h4>
       </div>
 
-      <div id="carouselExampleAutoplaying" className="carousel slide main" data-bs-ride="carousel">
-        <div className="carousel-inner">
-          {videos.length > 0 ? (
-            videos.map((video, index) => (
-              <div
-                key={video.videoId}
-                className={`carousel-item ${index === 0 ? "active" : ""}`}
-              >
+      {videos.length > 0 ? (
+        <div id="carouselExampleAutoplaying" className="carousel slide main" data-bs-ride="carousel">
+          <div className="carousel-inner">
+            {videos.map((video, index) => (
+              <div key={video.videoId} className={`carousel-item ${index === 0 ? "active" : ""}`}>
                 <video
                   className="d-block w-100"
                   src={video.videoUrl}
@@ -88,34 +98,38 @@ const VideoList: React.FC = () => {
                   </small>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="carousel-item active">
-              <p className="text-center">No upcoming videos available</p>
-            </div>
-          )}
+            ))}
+          </div>
+
+          <button
+            className="carousel-control-prev"
+            type="button"
+            data-bs-target="#carouselExampleAutoplaying"
+            data-bs-slide="prev"
+          >
+            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Previous</span>
+          </button>
+
+          <button
+            className="carousel-control-next"
+            type="button"
+            data-bs-target="#carouselExampleAutoplaying"
+            data-bs-slide="next"
+          >
+            <span className="carousel-control-next-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Next</span>
+          </button>
         </div>
-
-        <button
-          className="carousel-control-prev"
-          type="button"
-          data-bs-target="#carouselExampleAutoplaying"
-          data-bs-slide="prev"
-        >
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Previous</span>
-        </button>
-
-        <button
-          className="carousel-control-next"
-          type="button"
-          data-bs-target="#carouselExampleAutoplaying"
-          data-bs-slide="next"
-        >
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          <span className="visually-hidden">Next</span>
-        </button>
-      </div>
+      ) : (
+        <div className="no-videos">
+          <div className="animation-center">
+            <Lottie animationData={animatedDashboard} loop style={{ width: 360, height: 360 }} />
+            <div className="no-videos-text">No upcoming videos found</div>
+            <div className="no-videos-sub">Once you upload videos they'll appear here.</div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
